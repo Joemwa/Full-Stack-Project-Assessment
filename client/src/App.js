@@ -8,7 +8,7 @@ function App() {
   // const [enterTitle, setEnterTitle] = useState("");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/")
+    fetch("https://fullstackbackend-92zs.onrender.com/")
       .then((res) => {
         return res.json();
       })
