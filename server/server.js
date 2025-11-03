@@ -1,166 +1,110 @@
 const express = require("express");
 const cors = require("cors");
-const app = express();
-const port = process.env.PORT || 5000;
+const { Pool } = require("pg");
 require("dotenv").config();
 
+const app = express();
+const port = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
-app.use(cors());
-// Store and retrieve your videos from here
-// If you want, you can copy "exampleresponse.json" into here to have some data to work with
-const { Client } = require("pg");
-const client = new Client({
-  
-  
-  host: process.env.DBHOST,
-  user: process.env.DBUSER,
-  port: process.env.DBPORT,
-  password: process.env.DBPASSWORD,
-  database: process.env.DBDATABASE,
-  ssl: true,
+// PostgreSQL connection pool
+const pool = new Pool({
+  connectionString:
+    process.env.DATABASE_URL ||
+    `postgresql://${process.env.DBUSER}:${process.env.DBPASSWORD}@${process.env.DBHOST}:${process.env.DBPORT}/${process.env.DBDATABASE}`,
+  ssl: { rejectUnauthorized: false }, // required on Render
 });
-client.connect(function (err) {
-  if (err) throw err;
-  console.log("Connected to database");
-});
-let videos = [
-  {
-    "id": 523523,
-    "title": "Never Gonna Give You Up",
-    "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "rating": 23
-  },
-  {
-    "id": 523427,
-    "title": "The Coding Train",
-    "url": "https://www.youtube.com/watch?v=HerCR8bw_GE",
-    "rating": 230
-  },
-  {
-    "id": 82653,
-    "title": "Mac & Cheese | Basics with Babish",
-    "url": "https://www.youtube.com/watch?v=FUeyrEN14Rk",
-    "rating": 2111
-  },
-  {
-    "id": 858566,
-    "title": "Videos for Cats to Watch - 8 Hour Bird Bonanza",
-    "url": "https://www.youtube.com/watch?v=xbs7FT7dXYc",
-    "rating": 11
-  },
-  {
-    "id": 453538,
-    "title": "The Complete London 2012 Opening Ceremony | London 2012 Olympic Games",
-    "url": "https://www.youtube.com/watch?v=4As0e4de-rI",
-    "rating": 3211
-  },
-  {
-    "id": 283634,
-    "title": "Learn Unity - Beginner's Game Development Course",
-    "url": "https://www.youtube.com/watch?v=gB1F9G0JXOo",
-    "rating": 211
-  },
-  {
-    "id": 562824,
-    "title": "Cracking Enigma in 2021 - Computerphile",
-    "url": "https://www.youtube.com/watch?v=RzWB5jL5RX0",
-    "rating": 111
-  },
-  {
-    "id": 442452,
-    "title": "Coding Adventure: Chess AI",
-    "url": "https://www.youtube.com/watch?v=U4ogK0MIzqk",
-    "rating": 671
-  },
-  {
-    "id": 536363,
-    "title": "Coding Adventure: Ant and Slime Simulations",
-    "url": "https://www.youtube.com/watch?v=X-iSQQgOd1A",
-    "rating": 76
-  },
-  {
-    "id": 323445,
-    "title": "Why the Tour de France is so brutal",
-    "url": "https://www.youtube.com/watch?v=ZacOS8NBK6U",
-    "rating": 73
+
+// Verify connection at startup
+pool
+  .connect()
+  .then(() => console.log("✅ Connected to PostgreSQL"))
+  .catch((err) => console.error("❌ Database connection error:", err.message));
+
+// ---- ROUTES ----
+
+// GET all videos
+app.get("/", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM videos ORDER BY title");
+    res.json(result.rows);
+  } catch (error) {
+    console.error("DB query error:", error.message);
+    res.status(500).json({ error: "Failed to retrieve videos" });
   }
-]
-;
-app.use(express.json());
-// GET "/"
-app.get("/", (req, res) => {
-  client.query(`SELECT * FROM videos ORDER BY title`, (error, response) => {
-    if (!error) {
-      res.json(response.rows);
-    } else {
-      console.log(error.message);
+});
+
+// POST a new video
+app.post("/", async (req, res) => {
+  try {
+    const { title, url } = req.body;
+    if (!title || !url) {
+      return res.status(400).json({
+        result: "failure",
+        message: "Title and URL are required",
+      });
     }
-    client.end;
-  });
-  
-  // res.send(videos);
-});
-// app.post("/", (req, res) => {
-//   if (!req.body.field1 || !req.body.field2) {
-//     res.status(400).json({
-//       result: "failure",
-//       message: "Video could not be saved",
-//     });
-//   }
 
-
-app.post("/", (req, res) => {
-  console.log(req.body);
-  const postedTitle = req.body.title;
-  console.log(postedTitle);
-  const postedUrl = req.body.url;
-  console.log(postedUrl);
-
-  client.query("INSERT INTO videos (title, url, rating) VALUES ($1, $2, 0)", [postedTitle, postedUrl])
-  .then((result) => {
-    res.status(201).json({
-      result: "success",
-    });
-  });
-});
-
-
-app.put("/:videoTitle", (req, res) => {
-  const videoTitle = req.params.videoTitle;
-  const newRating = req.body.rating;
-
-  if (newRating === null) {
-    return res.status(400).json({ message: "Rating cannot be null" });
+    await pool.query(
+      "INSERT INTO videos (title, url, rating) VALUES ($1, $2, 0)",
+      [title, url]
+    );
+    res.status(201).json({ result: "success" });
+  } catch (error) {
+    console.error("Insert error:", error.message);
+    res.status(500).json({ error: "Failed to add video" });
   }
-
-  client.query("UPDATE videos SET rating = $1 WHERE title = $2", [newRating, videoTitle])
-    .then((result) => {
-      res.status(200).json({ message: "Rating updated successfully" });
-    })
-    .catch((error) => {
-      console.log(error.message);
-      res.status(500).json({ message: "Internal server error" });
-    });
 });
 
-app.delete("/:videoTitle", (req, res) => {
-  const videoTitle = req.params.videoTitle;
+// UPDATE a video rating
+app.put("/:videoTitle", async (req, res) => {
+  try {
+    const videoTitle = req.params.videoTitle;
+    const { rating } = req.body;
 
-  // Remove the video from your database or data source
-  client.query("DELETE FROM videos WHERE title = $1", [videoTitle])
-    .then((result) => {
-      if (result.rowCount === 0) {
-        // If no rows were affected, the video was not found
-        res.status(404).json({ message: "Video not found" });
-      } else {
-        res.status(204).json(); // Return a 204 status for successful deletion
-      }
-    })
-    .catch((error) => {
-      console.log(error.message);
-      res.status(500).json({ message: "Internal server error" });
-    });
+    if (rating === null || rating === undefined) {
+      return res.status(400).json({ message: "Rating cannot be null" });
+    }
+
+    const result = await pool.query(
+      "UPDATE videos SET rating = $1 WHERE title = $2",
+      [rating, videoTitle]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    res.status(200).json({ message: "Rating updated successfully" });
+  } catch (error) {
+    console.error("Update error:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
+
+// DELETE a video
+app.delete("/:videoTitle", async (req, res) => {
+  try {
+    const videoTitle = req.params.videoTitle;
+
+    const result = await pool.query("DELETE FROM videos WHERE title = $1", [
+      videoTitle,
+    ]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    res.status(204).end();
+  } catch (error) {
+    console.error("Delete error:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// ---- START SERVER ----
+app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
