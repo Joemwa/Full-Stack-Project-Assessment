@@ -1,75 +1,57 @@
-# Video Recommendation App
+# Full Stack Project Assessment
 
-## Background
+This repository contains my Full Stack Project Assessment. The project demonstrates both front-end and back-end development skills, including data handling, server logic, and user interaction.
 
-Before you continue to final projects we have to make sure that you can meaningfully contribute to a technical project.
+## 🌐 Project Overview
 
-This means that we need to be sure that you can create a Full Stack app.
+This application is a full-stack web project built as part of an assessment. It showcases:
 
-## Challenge
+- Front-end user interface
+- Back-end server logic
+- API communication between client and server
+- Data handling and responses
 
-In this project you will be building a project that fulfills the following User Stories
+## 🚀 Features
 
-- As a user, I want to be able to view a list of all YouTube videos posted on the site
-- As a user, I want to be able to post videos that I like from YouTube to my website.
-- As a user, I want to be able to delete videos from the website that I no longer like.
-- As a user, I want to be able to watch the videos embedded in the website.
-- As a user, I want to be able to "Up Vote" a video if I like it.
-- As a user, I want to be able to "Down Vote" a video if I dislike.
+- User-friendly front-end interface
+- Server-side API endpoints
+- Fetching and displaying data dynamically
+- Separation of client and server logic
+- Error handling and basic validation
 
-You don't need to worry about storing the video content itself - we'll rely on YouTube for this.
+## 🛠️ Technologies Used
 
-## Levels
+### Front End
+- HTML
+- CSS
+- JavaScript
 
-This project is split into several levels that you should complete each week of the three week project.
+### Back End
+- Node.js
+- Express.js
 
-You can find each of the levels split into separate files, linked below.
+### Other Tools
+- Git & GitHub
+  
+## 📁 Project Structure
 
-**Note:** Some of the levels are optional which means that you will build a working project without them. However, to make something really impressive you will need to complete as much as you can.
 
-### Week 1 - Front End
+- `client/`: Front-end files
+- `server/`: Back-end server logic and routes
+- `package.json`: Project dependencies and scripts
+- `README.md`: Project documentation
 
-- [Level 100](./100.md)
-  - A core version of the React front end of the app
-- [Level 199](./199.md) (Optional)
-  - Stretch goals for the front end if you have time
+## 💡 Getting Started
 
-### Week 2 - Back End (without Database)
+### Prerequisites
 
-- [Level 200](./200.md)
-  - A core version of the Node + Express back end of the app
-- [Level 250](./250.md)
-  - Connect your Front End and Back End together
-- [Level 299](./299.md) (Optional)
-  - Stretch goals for the back end if you have time
+- Node.js installed
+- npm installed
 
-### Week 3 - Back End (with Database)
+### Installation
 
-- [Level 300](./300.md)
-  - Integrate the back end with a database
-- [Level 399](./399.md) (Optional)
-  - Stretch goals for the database if you have time
-- [Level 999](./999.md) (Optional)
-  - More optional goals for if you have time
+1. **Clone the repository**
 
-## Sample Solution
-
-Here is an example solution of the Front End:
-
-https://vid-rec2.netlify.app/
-
-**Note:** You can design the website to look however you like.
-
-Here is an example solution for the Back End:
-
-https://video-rec.herokuapp.com
-
-## Design
-
-You are welcome to use [Bootstrap](https://getbootstrap.com/docs/4.0/getting-started/introduction/) or any other design framework to help you build this app.
-
-## Getting Started
-
-Fork this repository and then clone it to your computer.
-
-Progress to Level 100 when you are ready.
+   ```bash
+   git clone https://github.com/Joemwa/Full-Stack-Project-Assessment.git
+   cd Full-Stack-Project-Assessment
