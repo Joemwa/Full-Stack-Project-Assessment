@@ -14,14 +14,14 @@ function Addvideo(props) {
 
   function submitInfo(event) {
     event.preventDefault();
-    
+
     const newVideo = {
       title: enterTitle,
       url: videoLink,
       rating: 0,
     };
 
-    fetch("http://127.0.0.1:5000/", {
+    fetch("https://fullstackbackend-92zs.onrender.com/videos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -54,12 +54,7 @@ function Addvideo(props) {
         />
 
         <label htmlFor="VideoLink">Video Link</label>
-        <input
-          id="VideoLink"
-          type="text"
-          value={videoLink}
-          onChange={getUrl}
-        />
+        <input id="VideoLink" type="text" value={videoLink} onChange={getUrl} />
 
         <input id="Submit" type="submit" onClick={submitInfo} />
       </form>
